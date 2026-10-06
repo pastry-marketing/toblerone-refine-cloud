@@ -63,7 +63,7 @@ function AuthPage() {
       return setInfo("Check your inbox for a password reset link.");
     }
     const parsed = schema.safeParse({ email, password });
-    if (!parsed.success) return setErr(parsed.error.issues[0].message);
+    if (!parsed.success) return setErr(parsed.error.issues[0]?.message ?? "Invalid input");
     setBusy(true);
     if (mode === "signup") {
       const { data, error } = await supabase.auth.signUp({

@@ -135,7 +135,7 @@ export function chartRows(stats: KeywordStat[]) {
       row[s.id] = r.found ? r.position : null;
       map.set(day, row);
     }
-  return [...map.values()].sort((a, b) => String(a.day).localeCompare(String(b.day)));
+  return [...map.values()].sort((a, b) => String(a["day"]).localeCompare(String(b["day"])));
 }
 
 export function toCsv(rows: (string | number | null | undefined)[][]) {
