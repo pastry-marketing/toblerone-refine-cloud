@@ -39,7 +39,9 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
             className="group flex items-center gap-3 border-l-2 border-transparent px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
             activeProps={{ className: "!border-primary bg-card !text-foreground" }}
           >
-            <span className="num w-5 text-xs text-muted-foreground group-hover:text-primary">{item.n}</span>
+            <span className="num w-5 text-xs text-muted-foreground group-hover:text-primary">
+              {item.n}
+            </span>
             <item.icon className="h-4 w-4" />
             {item.label}
           </Link>
@@ -75,7 +77,11 @@ function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="no-print flex items-center justify-between border-b border-border bg-sidebar px-4 py-3 lg:hidden">
           <Brand />
-          <button aria-label="Open menu" className="border border-border bg-card p-2" onClick={() => setOpen(true)}>
+          <button
+            aria-label="Open menu"
+            className="border border-border bg-card p-2"
+            onClick={() => setOpen(true)}
+          >
             <Menu className="h-4 w-4" />
           </button>
         </header>
