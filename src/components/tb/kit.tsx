@@ -9,12 +9,22 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import logo from "@/assets/toblerone-logo.png.asset.json";
 import { cn } from "@/lib/utils";
 import { fmtShort, type KeywordStat } from "@/lib/data";
 
 export function Logo({ className }: { className?: string }) {
-  return <img src={logo.url} alt="Toblerone" className={cn("mix-blend-multiply object-contain", className)} />;
+  return (
+    <svg
+      viewBox="0 0 72 58"
+      role="img"
+      aria-label="Toblerone"
+      className={cn("object-contain text-primary", className)}
+    >
+      <path d="M3 52 23 20l7 9L43 6l16 22-8 7 13 17H39V35H32v17H3Z" fill="currentColor" />
+      <path d="m43 31 14-14-5-5h17v17l-5-5-13 14-8-7Z" fill="currentColor" />
+      <path d="M24 29h22v6H38v17h-7V35h-7v-6Z" fill="var(--background)" />
+    </svg>
+  );
 }
 
 export function Brand() {
@@ -42,7 +52,9 @@ export function PageHeader({
     <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
       <div>
         <div className="eyebrow">{eyebrow}</div>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight md:text-[40px] md:leading-none">{title}</h1>
+        <h1 className="mt-2 text-3xl font-extrabold tracking-tight md:text-[40px] md:leading-none">
+          {title}
+        </h1>
       </div>
       {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
     </div>
@@ -83,7 +95,11 @@ export function Section({
   );
 }
 
-export function StatStrip({ items }: { items: { label: string; value: ReactNode; tone?: "red" | "dark" }[] }) {
+export function StatStrip({
+  items,
+}: {
+  items: { label: string; value: ReactNode; tone?: "red" | "dark" }[];
+}) {
   return (
     <div className="grid grid-cols-2 border-l border-t border-border bg-card sm:grid-cols-3 xl:grid-cols-6">
       {items.map((it) => (
@@ -115,10 +131,16 @@ export function Rank({ value, className }: { value: number | null; className?: s
 }
 
 export function Change({ value, className }: { value: number | null; className?: string }) {
-  if (value == null) return <span className={cn("text-xs text-muted-foreground", className)}>—</span>;
+  if (value == null)
+    return <span className={cn("text-xs text-muted-foreground", className)}>—</span>;
   if (value === 0)
     return (
-      <span className={cn("inline-flex items-center gap-1 text-sm font-bold text-muted-foreground", className)}>
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 text-sm font-bold text-muted-foreground",
+          className,
+        )}
+      >
         <Minus className="h-3.5 w-3.5" />0
       </span>
     );
@@ -131,7 +153,11 @@ export function Change({ value, className }: { value: number | null; className?:
         className,
       )}
     >
-      {up ? <ArrowUp className="h-3.5 w-3.5" strokeWidth={3} /> : <ArrowDown className="h-3.5 w-3.5" strokeWidth={3} />}
+      {up ? (
+        <ArrowUp className="h-3.5 w-3.5" strokeWidth={3} />
+      ) : (
+        <ArrowDown className="h-3.5 w-3.5" strokeWidth={3} />
+      )}
       {Math.abs(value)}
     </span>
   );
@@ -141,7 +167,10 @@ const statusMap: Record<KeywordStat["status"], { label: string; cls: string }> =
   improved: { label: "Improved", cls: "border-success/40 text-success" },
   dropped: { label: "Dropped", cls: "border-primary/40 text-primary" },
   unchanged: { label: "No change", cls: "border-border text-muted-foreground" },
-  not_found: { label: "Not found", cls: "border-destructive bg-destructive text-destructive-foreground" },
+  not_found: {
+    label: "Not found",
+    cls: "border-destructive bg-destructive text-destructive-foreground",
+  },
   new: { label: "First check", cls: "border-foreground text-foreground" },
   unchecked: { label: "Not checked", cls: "border-dashed border-border text-muted-foreground" },
 };
@@ -149,7 +178,12 @@ const statusMap: Record<KeywordStat["status"], { label: string; cls: string }> =
 export function StatusBadge({ status }: { status: KeywordStat["status"] }) {
   const s = statusMap[status];
   return (
-    <span className={cn("inline-flex h-6 items-center border px-2 text-[10px] font-bold uppercase tracking-wider", s.cls)}>
+    <span
+      className={cn(
+        "inline-flex h-6 items-center border px-2 text-[10px] font-bold uppercase tracking-wider",
+        s.cls,
+      )}
+    >
       {s.label}
     </span>
   );
@@ -166,7 +200,13 @@ export function PageBar({ position, pages }: { position: number | null; pages: n
           key={i}
           className={cn(
             "h-1.5 flex-1",
-            page == null ? "bg-border" : i + 1 === page ? "bg-primary" : i + 1 < page ? "bg-primary-soft" : "bg-border",
+            page == null
+              ? "bg-border"
+              : i + 1 === page
+                ? "bg-primary"
+                : i + 1 < page
+                  ? "bg-primary-soft"
+                  : "bg-border",
           )}
         />
       ))}
@@ -174,7 +214,15 @@ export function PageBar({ position, pages }: { position: number | null; pages: n
   );
 }
 
-export function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
+export function EmptyState({
+  title,
+  body,
+  action,
+}: {
+  title: string;
+  body: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="flex flex-col items-start gap-3 border border-dashed border-border bg-background/50 p-8">
       <div className="eyebrow">Nothing here yet</div>
@@ -204,7 +252,10 @@ export function PositionChart({
 }) {
   if (!rows.length)
     return (
-      <div className="flex items-center justify-center text-sm text-muted-foreground" style={{ height }}>
+      <div
+        className="flex items-center justify-center text-sm text-muted-foreground"
+        style={{ height }}
+      >
         No ranking checks in this period.
       </div>
     );
@@ -238,7 +289,10 @@ export function PositionChart({
               boxShadow: "none",
             }}
             labelFormatter={(d) => fmtShort(d as string)}
-            formatter={(v, name) => [v == null ? "Not found" : `#${v}`, series.find((s) => s.key === name)?.label ?? name]}
+            formatter={(v, name) => [
+              v == null ? "Not found" : `#${v}`,
+              series.find((s) => s.key === name)?.label ?? name,
+            ]}
           />
           {series.map((s, i) => (
             <Line

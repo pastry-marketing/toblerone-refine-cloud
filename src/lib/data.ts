@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { buildDemoWorkspaceData } from "@/lib/demo-data";
 
 export type Website = Tables<"websites">;
 export type Keyword = Tables<"keywords">;
@@ -20,6 +21,7 @@ export type KeywordStat = Keyword & {
 };
 
 export async function fetchWorkspaceData() {
+  if (import.meta.env["VITE_TOBLERONE_DEMO"] === "true") return buildDemoWorkspaceData();
   const { data: ws, error: wsErr } = await supabase
     .from("workspaces")
     .select("*")
@@ -31,8 +33,17 @@ export async function fetchWorkspaceData() {
   const [sites, kws, runs, devices] = await Promise.all([
     supabase.from("websites").select("*").eq("workspace_id", ws.id).order("domain"),
     supabase.from("keywords").select("*").eq("workspace_id", ws.id).order("created_at"),
-    supabase.from("ranking_runs").select("*").eq("workspace_id", ws.id).order("checked_at").limit(5000),
-    supabase.from("extension_devices").select("*").eq("workspace_id", ws.id).order("created_at", { ascending: false }),
+    supabase
+      .from("ranking_runs")
+      .select("*")
+      .eq("workspace_id", ws.id)
+      .order("checked_at")
+      .limit(5000),
+    supabase
+      .from("extension_devices")
+      .select("*")
+      .eq("workspace_id", ws.id)
+      .order("created_at", { ascending: false }),
   ]);
   for (const r of [sites, kws, runs, devices]) if (r.error) throw r.error;
   return {
@@ -47,7 +58,12 @@ export async function fetchWorkspaceData() {
 export const workspaceQueryKey = ["workspace-data"];
 
 export function useWorkspaceData() {
-  return useQuery({ queryKey: workspaceQueryKey, queryFn: fetchWorkspaceData });
+  return useQuery({
+    queryKey: workspaceQueryKey,
+    queryFn: fetchWorkspaceData,
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
+  });
 }
 
 export function useRefreshWorkspace() {
@@ -63,7 +79,10 @@ export function buildKeywordStats(
 ): KeywordStat[] {
   return keywords.map((k) => {
     let kr = runs.filter((r) => r.keyword_id === k.id);
-    if (range) kr = kr.filter((r) => new Date(r.checked_at) >= range.from && new Date(r.checked_at) <= range.to);
+    if (range)
+      kr = kr.filter(
+        (r) => new Date(r.checked_at) >= range.from && new Date(r.checked_at) <= range.to,
+      );
     const latest = kr[kr.length - 1];
     const previous = kr[kr.length - 2];
     const current = latest?.found ? latest.position : null;
@@ -110,7 +129,11 @@ export function rangeFor(value: string) {
 }
 
 export function fmtDate(d: string | Date) {
-  return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 export function fmtDateTime(d: string | Date) {
   return new Date(d).toLocaleString("en-GB", {

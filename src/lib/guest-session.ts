@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
  * each browser's workspace private.
  */
 export async function ensureGuestSession() {
+  if (import.meta.env["VITE_TOBLERONE_DEMO"] === "true") return { id: "demo-user" };
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   if (sessionError) throw sessionError;
   if (sessionData.session?.user) return sessionData.session.user;
