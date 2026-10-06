@@ -1,18 +1,14 @@
-import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useState } from "react";
-import { BarChart3, FileText, History, LayoutGrid, LogOut, Menu, Plug, Settings, Tag } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { BarChart3, FileText, History, LayoutGrid, Menu, Plug, Settings, Tag } from "lucide-react";
 import { Brand } from "@/components/tb/kit";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useWorkspaceData } from "@/lib/data";
+import { ensureGuestSession } from "@/lib/guest-session";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
-  },
+  beforeLoad: ensureGuestSession,
   component: AppShell,
 });
 
@@ -26,8 +22,6 @@ const NAV = [
 ] as const;
 
 function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
-  const { user } = Route.useRouteContext();
-  const navigate = useNavigate();
   const { data } = useWorkspaceData();
   const connected = (data?.devices ?? []).some((d) => !d.revoked_at);
   return (
@@ -57,21 +51,9 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
           {connected ? "Extension connected" : "Extension not connected"}
         </div>
       </div>
-      <div className="flex items-center justify-between gap-2 border-t border-sidebar-border px-5 py-4">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-bold">{user.email}</div>
-          <div className="label-caps text-[10px]">Owner</div>
-        </div>
-        <button
-          aria-label="Log out"
-          className="border border-border bg-card p-2 text-muted-foreground hover:border-primary hover:text-primary"
-          onClick={async () => {
-            await supabase.auth.signOut();
-            navigate({ to: "/auth" });
-          }}
-        >
-          <LogOut className="h-4 w-4" />
-        </button>
+      <div className="border-t border-sidebar-border px-5 py-4">
+        <div className="text-sm font-bold">Toblerone workspace</div>
+        <div className="label-caps text-[10px]">Ready to track</div>
       </div>
     </div>
   );
