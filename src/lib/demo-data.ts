@@ -31,19 +31,19 @@ export function buildDemoWorkspaceData() {
   }));
   const runs = keywordSeeds.flatMap(([, positions], keywordIndex) =>
     positions.map((position, runIndex) => {
-      const previous = runIndex ? positions[runIndex - 1] : null;
+      const previous = runIndex ? (positions[runIndex - 1] ?? null) : null;
       return {
         id: `00000000-0000-4000-8000-${String(keywordIndex * 10 + runIndex).padStart(12, "0")}`,
         workspace_id: workspaceId,
         client_run_id: `demo-${keywordIndex}-${runIndex}`,
-        keyword_id: keywords[keywordIndex].id,
+        keyword_id: keywords[keywordIndex]!.id,
         website_id: websiteId,
         position,
         found: position != null,
         previous_position: previous,
         position_change: position != null && previous != null ? previous - position : null,
         ranking_url: position != null ? "https://www.notion.so/product" : null,
-        pages_checked: keywords[keywordIndex].pages_to_check,
+        pages_checked: keywords[keywordIndex]!.pages_to_check,
         search_engine: "google",
         market: "US",
         device_id: null,

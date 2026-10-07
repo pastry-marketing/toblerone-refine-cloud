@@ -68,8 +68,8 @@ function ExtensionPage() {
 
   async function connect() {
     if (!extensionId.trim())
-      return toast.error("Open this page from the Toblerone extension first.");
-    if (!workspace) return toast.error("The dashboard workspace is not ready yet.");
+      return void toast.error("Open this page from the Toblerone extension first.");
+    if (!workspace) return void toast.error("The dashboard workspace is not ready yet.");
     setConnecting(true);
     try {
       const [{ data: sessionData, error: sessionError }, config] = await Promise.all([
@@ -131,7 +131,7 @@ function ExtensionPage() {
       .from("extension_devices")
       .update({ revoked_at: new Date().toISOString() })
       .eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     if (extensionId) {
       await sendToExtension(extensionId, { type: "TOBLERONE_DISCONNECT" }).catch(() => undefined);
     }

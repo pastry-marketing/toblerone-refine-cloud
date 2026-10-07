@@ -98,7 +98,7 @@ export function Section({
 export function StatStrip({
   items,
 }: {
-  items: { label: string; value: ReactNode; tone?: "red" | "dark" }[];
+  items: { label: string; value: ReactNode; tone?: "red" | "dark" | undefined }[];
 }) {
   return (
     <div className="grid grid-cols-2 border-l border-t border-border bg-card sm:grid-cols-3 xl:grid-cols-6">
