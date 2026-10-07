@@ -57,6 +57,13 @@
       "when": 1791356417748,
       "tag": "0007_force_shared_workspace",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791359066868,
+      "tag": "0008_pin_global_workspace_no_samples",
+      "breakpoints": true
     }
   ]
 }
