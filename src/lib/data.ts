@@ -76,7 +76,7 @@ export function useWorkspaceData() {
   return useQuery({
     queryKey: workspaceQueryKey,
     queryFn: fetchWorkspaceData,
-    refetchInterval: 30_000,
+    refetchInterval: 10_000,
     refetchOnWindowFocus: true,
   });
 }
