@@ -1,152 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  CheckCircle2,
-  Chrome,
-  Copy,
-  Download,
-  Link2,
-  RefreshCw,
-  ShieldCheck,
-  Unplug,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { Chrome, Copy, Download, Link2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { ErrorBox, Loading, PageHeader, Section } from "@/components/tb/kit";
-import { fmtDateTime, useRefreshWorkspace, useWorkspaceData } from "@/lib/data";
-import { getSupabasePublicConfig, supabase } from "@/integrations/supabase/client";
+import { PageHeader, Section } from "@/components/tb/kit";
 
 export const Route = createFileRoute("/_authenticated/extension")({
   head: () => ({ meta: [{ title: "Extension — Toblerone Rank Tracker" }] }),
   component: ExtensionPage,
 });
 
-type ExtensionResponse = { ok?: boolean; error?: string; syncedRuns?: number; connected?: boolean };
-type ChromeRuntime = {
-  lastError?: { message?: string };
-  sendMessage: (
-    extensionId: string,
-    message: unknown,
-    callback: (response: ExtensionResponse) => void,
-  ) => void;
-};
-
-function getChromeRuntime() {
-  return (window as unknown as { chrome?: { runtime?: ChromeRuntime } }).chrome?.runtime;
-}
-
-function sendToExtension(extensionId: string, message: unknown) {
-  return new Promise<ExtensionResponse>((resolve, reject) => {
-    const runtime = getChromeRuntime();
-    if (!runtime) return reject(new Error("Open this page in Chrome to connect the extension."));
-    runtime.sendMessage(extensionId, message, (response) => {
-      const error = runtime.lastError;
-      if (error) return reject(new Error(error.message || "The extension did not respond."));
-      if (!response?.ok)
-        return reject(new Error(response?.error || "The extension did not accept the connection."));
-      resolve(response);
-    });
-  });
-}
-
-async function sha256(value: string) {
-  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
 function ExtensionPage() {
-  const query = useWorkspaceData();
-  const refresh = useRefreshWorkspace();
-  const [extensionId, setExtensionId] = useState("");
-  const [connecting, setConnecting] = useState(false);
-  const [connectedNow, setConnectedNow] = useState(false);
-
-  useEffect(() => {
-    const id =
-      new URLSearchParams(window.location.search).get("extensionId") ??
-      localStorage.getItem("tobleroneExtensionId") ??
-      "";
-    setExtensionId(id);
-    if (id) localStorage.setItem("tobleroneExtensionId", id);
-  }, []);
-
-  if (query.isLoading) return <Loading />;
-  if (query.error) return <ErrorBox message={query.error.message} />;
-
-  const workspace = query.data?.workspace;
-  const activeDevices = (query.data?.devices ?? []).filter((device) => !device.revoked_at);
-
-  async function connect() {
-    if (!extensionId.trim())
-      return void toast.error("Open this page from the Toblerone extension first.");
-    if (!workspace) return void toast.error("The dashboard workspace is not ready yet.");
-    setConnecting(true);
-    try {
-      const [{ data: sessionData, error: sessionError }, config] = await Promise.all([
-        supabase.auth.getSession(),
-        Promise.resolve(getSupabasePublicConfig()),
-      ]);
-      if (sessionError) throw sessionError;
-      const session = sessionData.session;
-      if (!session) throw new Error("The dashboard session is not ready. Refresh and try again.");
-
-      const tokenHash = await sha256(`chrome:${session.user.id}:${extensionId.trim()}`);
-      const { data: device, error: deviceError } = await supabase
-        .from("extension_devices")
-        .upsert(
-          {
-            workspace_id: workspace.id,
-            user_id: session.user.id,
-            name: "Toblerone Chrome extension",
-            token_hash: tokenHash,
-            revoked_at: null,
-            last_seen_at: new Date().toISOString(),
-          },
-          { onConflict: "token_hash" },
-        )
-        .select()
-        .single();
-      if (deviceError) throw deviceError;
-
-      const response = await sendToExtension(extensionId.trim(), {
-        type: "TOBLERONE_CONNECT",
-        payload: {
-          supabaseUrl: config.url,
-          publishableKey: config.publishableKey,
-          accessToken: session.access_token,
-          refreshToken: session.refresh_token,
-          expiresAt: session.expires_at ?? Math.floor(Date.now() / 1000) + 3600,
-          userId: session.user.id,
-          workspaceId: workspace.id,
-          deviceId: device.id,
-          dashboardUrl: window.location.origin,
-        },
-      });
-
-      localStorage.setItem("tobleroneExtensionId", extensionId.trim());
-      setConnectedNow(true);
-      await refresh();
-      toast.success(
-        `Extension connected${response.syncedRuns ? ` · ${response.syncedRuns} runs synced` : ""}`,
-      );
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not connect the extension.");
-    } finally {
-      setConnecting(false);
-    }
-  }
-
-  async function revoke(id: string) {
-    const { error } = await supabase
-      .from("extension_devices")
-      .update({ revoked_at: new Date().toISOString() })
-      .eq("id", id);
-    if (error) return void toast.error(error.message);
-    if (extensionId) {
-      await sendToExtension(extensionId, { type: "TOBLERONE_DISCONNECT" }).catch(() => undefined);
-    }
-    await refresh();
-    toast.success("Extension disconnected from this dashboard");
-  }
+  const dashboardUrl = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
     <div className="space-y-7">
@@ -163,10 +26,10 @@ function ExtensionPage() {
       <div className="grid gap-4 border border-border bg-card p-5 md:grid-cols-[1fr_auto] md:items-center">
         <div>
           <div className="eyebrow">Public download</div>
-          <h2 className="mt-2 text-xl font-extrabold">Install Toblerone in Chrome or Edge</h2>
+          <h2 className="mt-2 text-2xl font-serif font-bold tracking-tight text-foreground">Install Toblerone in Chrome or Edge</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Download the ZIP, extract it, then load the folder from the browser’s Extensions page
-            with Developer mode enabled. No dashboard account screen is required.
+            Download the ZIP, extract it, then load the folder from the browser's Extensions page
+            with Developer mode enabled.
           </p>
         </div>
         <a
@@ -180,16 +43,15 @@ function ExtensionPage() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,.85fr)]">
         <Section
-          n="01"
           eyebrow="One-time setup"
-          title="Pair this browser"
+          title="Pair your extension"
           bodyClassName="space-y-6"
         >
           <div className="grid gap-px border border-border bg-border sm:grid-cols-3">
             {[
-              ["01", "Open Toblerone", "Click Open dashboard inside the extension."],
-              ["02", "Pair once", "The extension ID is filled automatically."],
-              ["03", "Run checks", "Every completed run syncs to this dashboard."],
+              ["01", "Open Settings", "Open the Toblerone extension and go to settings."],
+              ["02", "Paste URL", "Paste the Dashboard URL below into the extension."],
+              ["03", "Run checks", "Every completed run syncs directly to this dashboard."],
             ].map(([number, title, body]) => (
               <div key={number} className="bg-card p-4">
                 <div className="num text-2xl text-primary">{number}</div>
@@ -200,49 +62,30 @@ function ExtensionPage() {
           </div>
 
           <label className="block">
-            <span className="label-caps">Extension ID</span>
+            <span className="label-caps">Dashboard URL</span>
             <div className="mt-2 flex gap-2">
               <input
-                className="h-11 min-w-0 flex-1 border border-border bg-background px-3 font-mono text-xs outline-none focus:border-primary"
-                placeholder="Open this page from the extension"
-                value={extensionId}
-                onChange={(event) => setExtensionId(event.target.value.trim())}
+                className="h-11 min-w-0 flex-1 border border-border bg-background px-3 font-mono text-sm outline-none focus:border-primary text-muted-foreground"
+                value={dashboardUrl}
+                readOnly
               />
               <button
-                aria-label="Copy extension ID"
-                className="border border-border bg-card px-3 text-muted-foreground"
-                onClick={() => navigator.clipboard.writeText(extensionId)}
-                disabled={!extensionId}
+                aria-label="Copy Dashboard URL"
+                className="border border-border bg-card px-3 text-foreground hover:border-primary"
+                onClick={() => {
+                  navigator.clipboard.writeText(dashboardUrl);
+                  toast.success("Dashboard URL copied to clipboard");
+                }}
               >
                 <Copy className="h-4 w-4" />
               </button>
             </div>
           </label>
-
-          <button
-            className="inline-flex h-11 items-center gap-2 bg-primary px-5 text-sm font-extrabold text-primary-foreground disabled:opacity-50"
-            onClick={connect}
-            disabled={!extensionId || connecting}
-          >
-            {connecting ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : connectedNow ? (
-              <CheckCircle2 className="h-4 w-4" />
-            ) : (
-              <Link2 className="h-4 w-4" />
-            )}
-            {connecting
-              ? "Connecting and syncing…"
-              : connectedNow
-                ? "Connected"
-                : "Connect extension"}
-          </button>
         </Section>
 
         <Section
-          n="02"
           eyebrow="How it works"
-          title="Private browser-to-cloud sync"
+          title="Direct Database Sync"
           bodyClassName="space-y-5"
         >
           <div className="flex gap-3">
