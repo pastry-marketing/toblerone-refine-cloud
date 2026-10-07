@@ -48,7 +48,13 @@ export function SitesManager({ n }: { n?: string }) {
 
   async function remove(id: string, d: string) {
     const count = keywords.filter((k) => k.website_id === id).length;
-    if (!window.confirm(count ? `Remove ${d} and its ${count} keyword(s) with all ranking history?` : `Remove ${d}?`)) return;
+    const ok = await confirm(
+      `Remove ${d}?`,
+      count
+        ? `This also removes its ${count} keyword${count === 1 ? "" : "s"} and all ranking history.`
+        : "This website has no tracked keywords.",
+    );
+    if (!ok) return;
     const { error } = await supabase.from("websites").delete().eq("id", id);
     if (error) return void toast.error(error.message);
     await refresh();

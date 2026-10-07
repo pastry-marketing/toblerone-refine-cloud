@@ -15,14 +15,15 @@ function ExtensionPage() {
   const dashboardUrl = typeof window !== "undefined" ? window.location.origin : "";
   const query = useWorkspaceData();
   const refresh = useRefreshWorkspace();
-
-  if (query.isLoading) return <Loading />;
-  if (query.error) return <ErrorBox message={query.error.message} />;
-
-  const activeDevices = (query.data?.devices ?? []).filter((device) => !device.revoked_at);
-
+  const [confirm, confirmDialog] = useConfirm();
+...
   async function revoke(id: string) {
-    if (!window.confirm("Disconnect this extension? It will stop syncing until paired again.")) return;
+    const ok = await confirm(
+      "Disconnect this extension?",
+      "It will stop syncing until paired again.",
+      "Disconnect",
+    );
+    if (!ok) return;
     const { error } = await supabase
       .from("extension_devices")
       .update({ revoked_at: new Date().toISOString() })
