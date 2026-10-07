@@ -2,6 +2,10 @@
 
 Create a new project with Cloud enabled.
 
+The dashboard opens directly into a private guest workspace. Supabase anonymous
+sign-ins must remain enabled so visitors are never shown an account form while
+the existing row-level security policies continue to isolate their data.
+
 
 Refine the interface to match the attached Toblerone extension more closely. Keep the existing functionality and data model.
 

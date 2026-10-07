@@ -1,18 +1,14 @@
-import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useState } from "react";
-import { BarChart3, FileText, History, LayoutGrid, LogOut, Menu, Plug, Settings, Tag } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { BarChart3, FileText, History, LayoutGrid, Menu, Plug, Settings, Tag } from "lucide-react";
 import { Brand } from "@/components/tb/kit";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useWorkspaceData } from "@/lib/data";
+import { ensureGuestSession } from "@/lib/guest-session";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
-  },
+  beforeLoad: ensureGuestSession,
   component: AppShell,
 });
 
@@ -26,8 +22,6 @@ const NAV = [
 ] as const;
 
 function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
-  const { user } = Route.useRouteContext();
-  const navigate = useNavigate();
   const { data } = useWorkspaceData();
   const connected = (data?.devices ?? []).some((d) => !d.revoked_at);
   return (
@@ -45,7 +39,9 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
             className="group flex items-center gap-3 border-l-2 border-transparent px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
             activeProps={{ className: "!border-primary bg-card !text-foreground" }}
           >
-            <span className="num w-5 text-xs text-muted-foreground group-hover:text-primary">{item.n}</span>
+            <span className="num w-5 text-xs text-muted-foreground group-hover:text-primary">
+              {item.n}
+            </span>
             <item.icon className="h-4 w-4" />
             {item.label}
           </Link>
@@ -57,21 +53,9 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
           {connected ? "Extension connected" : "Extension not connected"}
         </div>
       </div>
-      <div className="flex items-center justify-between gap-2 border-t border-sidebar-border px-5 py-4">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-bold">{user.email}</div>
-          <div className="label-caps text-[10px]">Owner</div>
-        </div>
-        <button
-          aria-label="Log out"
-          className="border border-border bg-card p-2 text-muted-foreground hover:border-primary hover:text-primary"
-          onClick={async () => {
-            await supabase.auth.signOut();
-            navigate({ to: "/auth" });
-          }}
-        >
-          <LogOut className="h-4 w-4" />
-        </button>
+      <div className="border-t border-sidebar-border px-5 py-4">
+        <div className="text-sm font-bold">Toblerone workspace</div>
+        <div className="label-caps text-[10px]">Ready to track</div>
       </div>
     </div>
   );
@@ -93,7 +77,11 @@ function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="no-print flex items-center justify-between border-b border-border bg-sidebar px-4 py-3 lg:hidden">
           <Brand />
-          <button aria-label="Open menu" className="border border-border bg-card p-2" onClick={() => setOpen(true)}>
+          <button
+            aria-label="Open menu"
+            className="border border-border bg-card p-2"
+            onClick={() => setOpen(true)}
+          >
             <Menu className="h-4 w-4" />
           </button>
         </header>
