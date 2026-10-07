@@ -3,7 +3,7 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useRefreshWorkspace, useWorkspaceData } from "@/lib/data";
-import { Section } from "@/components/tb/kit";
+import { Section, useConfirm } from "@/components/tb/kit";
 
 export function normalizeDomain(value: string) {
   const raw = value.trim();
