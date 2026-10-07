@@ -73,6 +73,26 @@ function ExtensionPage() {
         </a>
       </div>
 
+      <div className="grid gap-4 border border-border bg-card p-5 md:grid-cols-[1fr_auto] md:items-center">
+        <div>
+          <div className="eyebrow">Also available</div>
+          <h2 className="mt-2 text-2xl font-serif font-bold tracking-tight text-foreground">Page Index Verifier</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            A separate Chrome extension that checks whether your URLs are indexed on Google and
+            Bing — via the official Webmaster APIs (no CAPTCHA) or real browser tabs. Download the
+            ZIP, extract it, then load the folder from the browser's Extensions page with Developer
+            mode enabled.
+          </p>
+        </div>
+        <a
+          className="inline-flex h-11 items-center justify-center gap-2 bg-primary px-5 text-sm font-extrabold text-primary-foreground"
+          href="/downloads/Page-Index-Verifier-extension.zip"
+          download
+        >
+          <Download className="h-4 w-4" /> Download ZIP
+        </a>
+      </div>
+
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,.85fr)]">
         <Section
           n="01"
