@@ -120,10 +120,10 @@ function ExtensionPage() {
           <div className="flex gap-3">
             <ShieldCheck className="mt-0.5 h-5 w-5 text-primary" />
             <div>
-              <div className="font-extrabold">Your workspace stays isolated</div>
+              <div className="font-extrabold">One shared dashboard</div>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                The extension receives only this dashboard’s private guest session and cannot access
-                another workspace.
+                Everyone who opens this dashboard, and every connected extension, sees and adds to
+                the same keywords and ranking history.
               </p>
             </div>
           </div>
