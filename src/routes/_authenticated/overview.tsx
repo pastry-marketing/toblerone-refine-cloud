@@ -8,7 +8,8 @@ import {
   Loading,
   PageHeader,
   PositionChart,
-  Rank,
+  PositionDetail,
+  ResultPreview,
   Section,
   StatStrip,
   StatusBadge,
@@ -71,6 +72,34 @@ function OverviewPage() {
     .sort((a, b) => (b.latest?.checked_at ?? "").localeCompare(a.latest?.checked_at ?? ""))
     .slice(0, 7);
   const connected = (data?.devices ?? []).some((device) => !device.revoked_at);
+  const distribution = [
+    {
+      label: "Top 3",
+      value: stats.filter((item) => item.current != null && item.current <= 3).length,
+    },
+    {
+      label: "4–10",
+      value: stats.filter((item) => item.current != null && item.current >= 4 && item.current <= 10)
+        .length,
+    },
+    {
+      label: "11–20",
+      value: stats.filter(
+        (item) => item.current != null && item.current >= 11 && item.current <= 20,
+      ).length,
+    },
+    {
+      label: "21–50",
+      value: stats.filter(
+        (item) => item.current != null && item.current >= 21 && item.current <= 50,
+      ).length,
+    },
+    {
+      label: "51+",
+      value: stats.filter((item) => item.current != null && item.current >= 51).length,
+    },
+    { label: "Not found", value: notFound },
+  ];
 
   return (
     <div className="space-y-7">
@@ -99,13 +128,16 @@ function OverviewPage() {
         items={[
           { label: "Tracked keywords", value: stats.length },
           {
+            label: "Top 3",
+            value: stats.filter((item) => item.current != null && item.current <= 3).length,
+          },
+          {
             label: "Top 10",
             value: stats.filter((item) => item.current != null && item.current <= 10).length,
           },
           { label: "Average rank", value: average == null ? "—" : `#${average}` },
           { label: "Improved", value: improved },
           { label: "Drops", value: dropped, tone: dropped ? "red" : undefined },
-          { label: "Not found", value: notFound, tone: notFound ? "dark" : undefined },
         ]}
       />
 
@@ -150,8 +182,25 @@ function OverviewPage() {
         </Section>
       </div>
 
+      <Section n="03" eyebrow="Coverage" title="Ranking distribution">
+        <div className="grid gap-px border border-border bg-border sm:grid-cols-3 xl:grid-cols-6">
+          {distribution.map((band) => (
+            <div key={band.label} className="bg-card px-4 py-5">
+              <div className="label-caps">{band.label}</div>
+              <div className="num mt-2 text-3xl">{band.value}</div>
+              <div className="mt-3 h-1.5 bg-border">
+                <div
+                  className="h-full bg-primary"
+                  style={{ width: `${stats.length ? (band.value / stats.length) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
       <Section
-        n="03"
+        n="04"
         eyebrow="Latest activity"
         title="Recent ranking checks"
         action={
@@ -166,11 +215,12 @@ function OverviewPage() {
       >
         {recent.length ? (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] border-collapse text-left">
+            <table className="w-full min-w-[1080px] border-collapse text-left">
               <thead className="label-caps border-b border-border bg-background/60">
                 <tr>
                   <th className="px-5 py-3">Keyword</th>
                   <th className="px-4 py-3">Current</th>
+                  <th className="px-4 py-3">Ranked page</th>
                   <th className="px-4 py-3">Change</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Depth</th>
@@ -187,7 +237,10 @@ function OverviewPage() {
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <Rank value={item.current} className="text-2xl" />
+                      <PositionDetail value={item.current} />
+                    </td>
+                    <td className="max-w-sm px-4 py-4 text-xs">
+                      <ResultPreview run={item.latest} compact />
                     </td>
                     <td className="px-4 py-4">
                       <Change value={item.change} />

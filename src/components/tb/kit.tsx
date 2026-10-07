@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { ArrowDown, ArrowUp, ExternalLink, Minus } from "lucide-react";
 import {
   CartesianGrid,
   Line,
@@ -10,7 +10,7 @@ import {
   YAxis,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { fmtShort, type KeywordStat } from "@/lib/data";
+import { fmtShort, rankLocation, type KeywordStat, type Run } from "@/lib/data";
 
 export function Logo({ className }: { className?: string }) {
   return (
@@ -127,6 +127,45 @@ export function Rank({ value, className }: { value: number | null; className?: s
       <span className="text-[0.7em] align-[0.15em]">#</span>
       {value}
     </span>
+  );
+}
+
+export function PositionDetail({ value, className }: { value: number | null; className?: string }) {
+  const location = rankLocation(value);
+  return (
+    <div className={className}>
+      <Rank value={value} className="text-3xl" />
+      <div className="mt-1 whitespace-nowrap text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+        {location?.label ?? "Not ranked"}
+      </div>
+    </div>
+  );
+}
+
+export function ResultPreview({ run, compact = false }: { run?: Run; compact?: boolean }) {
+  if (!run?.ranking_url) {
+    return <span className="text-xs text-muted-foreground">No ranked page captured</span>;
+  }
+  return (
+    <div className="min-w-0 max-w-xl">
+      <a
+        className="group inline-flex max-w-full items-center gap-1.5 font-bold text-[#1748b5] hover:underline"
+        href={run.ranking_url}
+        target="_blank"
+        rel="noreferrer"
+      >
+        <span className="truncate">{run.result_title || run.ranking_url}</span>
+        <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+      </a>
+      <div className="mt-1 truncate text-[11px] font-semibold text-success">
+        {run.result_domain || run.ranking_url}
+      </div>
+      {!compact && run.result_snippet ? (
+        <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+          {run.result_snippet}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

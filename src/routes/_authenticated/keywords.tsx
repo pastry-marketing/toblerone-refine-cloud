@@ -9,7 +9,8 @@ import {
   Loading,
   PageBar,
   PageHeader,
-  Rank,
+  PositionDetail,
+  ResultPreview,
   Section,
   StatusBadge,
 } from "@/components/tb/kit";
@@ -58,23 +59,33 @@ function KeywordsPage() {
         "Keyword",
         "Website",
         "Current rank",
+        "Google page",
+        "Result on page",
         "Previous rank",
         "Change",
         "Status",
         "Pages checked",
         "Last checked",
         "Ranking URL",
+        "Result title",
+        "Result domain",
+        "Result snippet",
       ],
       ...filtered.map((item) => [
         item.keyword,
         item.website?.domain,
         item.current,
+        item.latest?.result_page_number,
+        item.latest?.result_position_on_page,
         item.prev,
         item.change,
         item.status,
         item.latest?.pages_checked ?? item.pages_to_check,
         item.latest?.checked_at ?? "",
         item.latest?.ranking_url ?? "",
+        item.latest?.result_title ?? "",
+        item.latest?.result_domain ?? "",
+        item.latest?.result_snippet ?? "",
       ]),
     ];
     downloadFile(`toblerone-keywords-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows));
@@ -139,11 +150,12 @@ function KeywordsPage() {
 
         {filtered.length ? (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[920px] border-collapse text-left">
+            <table className="w-full min-w-[1240px] border-collapse text-left">
               <thead className="label-caps border-b border-border bg-background/60">
                 <tr>
                   <th className="px-5 py-3">Keyword</th>
                   <th className="px-4 py-3">Position</th>
+                  <th className="px-4 py-3">Ranking page</th>
                   <th className="px-4 py-3">Movement</th>
                   <th className="px-4 py-3">Search depth</th>
                   <th className="px-4 py-3">Status</th>
@@ -166,7 +178,10 @@ function KeywordsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <Rank value={item.current} className="text-3xl" />
+                      <PositionDetail value={item.current} />
+                    </td>
+                    <td className="w-[360px] px-4 py-4">
+                      <ResultPreview run={item.latest} />
                     </td>
                     <td className="px-4 py-4">
                       <Change value={item.change} />

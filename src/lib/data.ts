@@ -20,6 +20,13 @@ export type KeywordStat = Keyword & {
   status: "improved" | "dropped" | "unchanged" | "not_found" | "new" | "unchecked";
 };
 
+export function rankLocation(position: number | null | undefined) {
+  if (position == null || !Number.isFinite(position) || position < 1) return null;
+  const page = Math.ceil(position / 10);
+  const result = ((position - 1) % 10) + 1;
+  return { page, result, label: `Page ${page} · Result ${result}` };
+}
+
 export async function fetchWorkspaceData() {
   if (import.meta.env["VITE_TOBLERONE_DEMO"] === "true") return buildDemoWorkspaceData();
   const { data: ws, error: wsErr } = await supabase

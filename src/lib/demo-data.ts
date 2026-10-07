@@ -5,7 +5,7 @@ const now = Date.now();
 const keywordSeeds = [
   ["project management software", [18, 15, 13, 11, 9, 7]],
   ["team collaboration workspace", [5, 6, 8, 9, 12, 14]],
-  ["best productivity tool", [48, 42, 35, 28, 19, 14]],
+  ["best productivity tool", [48, 44, 41, 39, 38, 37]],
   ["project documentation platform", [3, 3, 2, 3, 3, 3]],
   ["remote team knowledge base", [22, 27, null, 38, null, null]],
 ] as const;
@@ -19,12 +19,17 @@ export function buildDemoWorkspaceData() {
       created_at: new Date(now - 90 * 86400000).toISOString(),
     },
   ];
-  const keywords = keywordSeeds.map(([keyword], index) => ({
+  const keywords = keywordSeeds.map(([keyword, positions], index) => ({
     id: `00000000-0000-4000-8000-00000000010${index}`,
     workspace_id: workspaceId,
     website_id: websiteId,
     keyword,
-    pages_to_check: index === 4 ? 5 : 3,
+    pages_to_check: Math.max(
+      3,
+      Math.ceil(
+        Math.max(...positions.filter((position): position is number => position != null)) / 10,
+      ),
+    ),
     market: "US",
     notes: null,
     created_at: new Date(now - 90 * 86400000).toISOString(),
@@ -42,7 +47,15 @@ export function buildDemoWorkspaceData() {
         found: position != null,
         previous_position: previous,
         position_change: position != null && previous != null ? previous - position : null,
-        ranking_url: position != null ? "https://www.notion.so/product" : null,
+        ranking_url: position != null ? "https://www.notion.so/product/ai" : null,
+        result_title: position != null ? "Notion AI — Your connected workspace for work" : null,
+        result_snippet:
+          position != null
+            ? "Write, plan, organize, and turn ideas into action with one connected AI workspace."
+            : null,
+        result_domain: position != null ? "notion.so" : null,
+        result_page_number: position != null ? Math.ceil(position / 10) : null,
+        result_position_on_page: position != null ? ((position - 1) % 10) + 1 : null,
         pages_checked: keywords[keywordIndex]!.pages_to_check,
         search_engine: "google",
         market: "US",

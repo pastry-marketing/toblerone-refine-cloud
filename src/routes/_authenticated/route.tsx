@@ -1,6 +1,16 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useState } from "react";
-import { BarChart3, FileText, History, LayoutGrid, Menu, Plug, Settings, Tag } from "lucide-react";
+import {
+  BarChart3,
+  Download,
+  FileText,
+  History,
+  LayoutGrid,
+  Menu,
+  Plug,
+  Settings,
+  Tag,
+} from "lucide-react";
 import { Brand } from "@/components/tb/kit";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { useWorkspaceData } from "@/lib/data";
@@ -53,6 +63,13 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
           {connected ? "Extension connected" : "Extension not connected"}
         </div>
       </div>
+      <a
+        className="mx-5 mb-4 inline-flex h-10 items-center justify-center gap-2 bg-primary px-3 text-xs font-extrabold text-primary-foreground"
+        href="/downloads/Toblerone-extension.zip"
+        download
+      >
+        <Download className="h-3.5 w-3.5" /> Download extension
+      </a>
       <div className="border-t border-sidebar-border px-5 py-4">
         <div className="text-sm font-bold">Toblerone workspace</div>
         <div className="label-caps text-[10px]">Ready to track</div>

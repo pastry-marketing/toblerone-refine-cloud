@@ -7,7 +7,9 @@ import {
   Loading,
   PageHeader,
   PositionChart,
+  PositionDetail,
   Rank,
+  ResultPreview,
   Section,
   StatStrip,
 } from "@/components/tb/kit";
@@ -58,21 +60,31 @@ function ReportsPage() {
         "Keyword",
         "Website",
         "Current rank",
+        "Google page",
+        "Result on page",
         "Previous rank",
         "Change",
         "Best rank",
         "Status",
         "Last checked",
+        "Ranked page title",
+        "Ranked page URL",
+        "Google snippet",
       ],
       ...stats.map((item) => [
         item.keyword,
         item.website?.domain,
         item.current,
+        item.latest?.result_page_number,
+        item.latest?.result_position_on_page,
         item.prev,
         item.change,
         item.best,
         item.status,
         item.latest?.checked_at ?? "",
+        item.latest?.result_title ?? "",
+        item.latest?.ranking_url ?? "",
+        item.latest?.result_snippet ?? "",
       ]),
     ];
     downloadFile(
@@ -151,11 +163,12 @@ function ReportsPage() {
 
       <Section n="02" eyebrow="Breakdown" title="Current positions" bodyClassName="p-0">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] border-collapse text-left">
+          <table className="w-full min-w-[1040px] border-collapse text-left">
             <thead className="label-caps border-b border-border bg-background/60">
               <tr>
                 <th className="px-5 py-3">Keyword</th>
                 <th className="px-4 py-3">Current</th>
+                <th className="px-4 py-3">Ranked page</th>
                 <th className="px-4 py-3">Change</th>
                 <th className="px-4 py-3">Best</th>
                 <th className="px-5 py-3">Latest check</th>
@@ -169,7 +182,10 @@ function ReportsPage() {
                     <div className="mt-1 text-xs text-muted-foreground">{item.website?.domain}</div>
                   </td>
                   <td className="px-4 py-4">
-                    <Rank value={item.current} className="text-2xl" />
+                    <PositionDetail value={item.current} />
+                  </td>
+                  <td className="w-[360px] px-4 py-4">
+                    <ResultPreview run={item.latest} compact />
                   </td>
                   <td className="px-4 py-4">
                     <Change value={item.change} />

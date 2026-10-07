@@ -176,6 +176,11 @@ export type Database = {
           position_change: number | null
           previous_position: number | null
           ranking_url: string | null
+          result_domain: string | null
+          result_page_number: number | null
+          result_position_on_page: number | null
+          result_snippet: string | null
+          result_title: string | null
           search_engine: string
           synced_at: string
           website_id: string
@@ -194,6 +199,11 @@ export type Database = {
           position_change?: number | null
           previous_position?: number | null
           ranking_url?: string | null
+          result_domain?: string | null
+          result_page_number?: number | null
+          result_position_on_page?: number | null
+          result_snippet?: string | null
+          result_title?: string | null
           search_engine?: string
           synced_at?: string
           website_id: string
@@ -212,6 +222,11 @@ export type Database = {
           position_change?: number | null
           previous_position?: number | null
           ranking_url?: string | null
+          result_domain?: string | null
+          result_page_number?: number | null
+          result_position_on_page?: number | null
+          result_snippet?: string | null
+          result_title?: string | null
           search_engine?: string
           synced_at?: string
           website_id?: string

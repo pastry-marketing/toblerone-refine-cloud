@@ -7,7 +7,8 @@ import {
   ErrorBox,
   Loading,
   PageHeader,
-  Rank,
+  PositionDetail,
+  ResultPreview,
   Section,
 } from "@/components/tb/kit";
 import { downloadFile, fmtDateTime, toCsv, useWorkspaceData } from "@/lib/data";
@@ -49,20 +50,30 @@ function HistoryPage() {
         "Keyword",
         "Website",
         "Rank",
+        "Google page",
+        "Result on page",
         "Previous rank",
         "Change",
         "Pages checked",
         "Found URL",
+        "Result title",
+        "Result domain",
+        "Result snippet",
       ],
       ...rows.map(({ run, keyword, website }) => [
         run.checked_at,
         keyword?.keyword,
         website?.domain,
         run.position,
+        run.result_page_number,
+        run.result_position_on_page,
         run.previous_position,
         run.position_change,
         run.pages_checked,
         run.ranking_url,
+        run.result_title,
+        run.result_domain,
+        run.result_snippet,
       ]),
     ];
     downloadFile(`toblerone-history-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(data));
@@ -98,15 +109,15 @@ function HistoryPage() {
         </div>
         {rows.length ? (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[880px] border-collapse text-left">
+            <table className="w-full min-w-[1160px] border-collapse text-left">
               <thead className="label-caps border-b border-border bg-background/60">
                 <tr>
                   <th className="px-5 py-3">Date and time</th>
                   <th className="px-4 py-3">Keyword</th>
                   <th className="px-4 py-3">Rank</th>
+                  <th className="px-4 py-3">Exact ranking page</th>
                   <th className="px-4 py-3">Change</th>
                   <th className="px-4 py-3">Depth</th>
-                  <th className="px-5 py-3">Result URL</th>
                 </tr>
               </thead>
               <tbody>
@@ -120,27 +131,16 @@ function HistoryPage() {
                       <div className="mt-1 text-xs text-muted-foreground">{website?.domain}</div>
                     </td>
                     <td className="px-4 py-4">
-                      <Rank value={run.found ? run.position : null} className="text-2xl" />
+                      <PositionDetail value={run.found ? run.position : null} />
+                    </td>
+                    <td className="w-[380px] px-4 py-4">
+                      <ResultPreview run={run} />
                     </td>
                     <td className="px-4 py-4">
                       <Change value={run.position_change} />
                     </td>
                     <td className="px-4 py-4 text-sm font-semibold">
                       Top {run.pages_checked * 10}
-                    </td>
-                    <td className="max-w-80 px-5 py-4 text-xs">
-                      {run.ranking_url ? (
-                        <a
-                          className="block truncate font-semibold text-primary hover:underline"
-                          href={run.ranking_url}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {run.ranking_url}
-                        </a>
-                      ) : (
-                        <span className="text-muted-foreground">Not found in checked pages</span>
-                      )}
                     </td>
                   </tr>
                 ))}
