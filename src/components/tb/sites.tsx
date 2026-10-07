@@ -24,6 +24,7 @@ const field =
 export function SitesManager({ n }: { n?: string }) {
   const query = useWorkspaceData();
   const refresh = useRefreshWorkspace();
+  const [confirm, confirmDialog] = useConfirm();
   const [domain, setDomain] = useState("");
   const [busy, setBusy] = useState(false);
   const ws = query.data?.workspace;

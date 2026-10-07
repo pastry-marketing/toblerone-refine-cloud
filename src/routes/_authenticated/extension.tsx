@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Chrome, Copy, Download, RefreshCw, ShieldCheck, Unplug } from "lucide-react";
 import { toast } from "sonner";
-import { ErrorBox, Loading, PageHeader, Section } from "@/components/tb/kit";
+import { ErrorBox, Loading, PageHeader, Section, useConfirm } from "@/components/tb/kit";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtDateTime, useRefreshWorkspace, useWorkspaceData } from "@/lib/data";
 import { disconnectExtension, recallExtensionId } from "@/lib/extension-pairing";
