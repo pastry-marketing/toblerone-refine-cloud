@@ -16,7 +16,11 @@ function ExtensionPage() {
   const query = useWorkspaceData();
   const refresh = useRefreshWorkspace();
   const [confirm, confirmDialog] = useConfirm();
-...
+
+  if (query.isLoading) return <Loading />;
+  if (query.error) return <ErrorBox message={query.error.message} />;
+
+  const activeDevices = (query.data?.devices ?? []).filter((device) => !device.revoked_at);
   async function revoke(id: string) {
     const ok = await confirm(
       "Disconnect this extension?",
