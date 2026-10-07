@@ -1,14 +1,17 @@
-﻿import { json } from "@tanstack/react-start";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { supabase } from "@/integrations/supabase/client";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createAPIFileRoute("/api/config")({
-  GET: async () => {
-    const { data } = await supabase.from("workspaces").select("id").order("created_at").limit(1).maybeSingle();
-    return json({
-      supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
-      supabaseKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-      workspaceId: data?.id,
-    });
+export const Route = createFileRoute("/api/config")({
+  server: {
+    handlers: {
+      GET: async () =>
+        Response.json({
+          supabaseUrl: process.env["SUPABASE_URL"] ?? import.meta.env["VITE_SUPABASE_URL"],
+          supabaseKey:
+            process.env["SUPABASE_PUBLISHABLE_KEY"] ?? import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"],
+          // Workspaces are private (row-level security), so an unauthenticated
+          // request can never see one; the extension gets its workspace after pairing.
+          workspaceId: null,
+        }),
+    },
   },
 });
