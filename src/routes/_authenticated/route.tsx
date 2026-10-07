@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BarChart3,
   Download,
@@ -11,15 +11,56 @@ import {
   Settings,
   Tag,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Brand } from "@/components/tb/kit";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { useWorkspaceData } from "@/lib/data";
+import { useRefreshWorkspace, useWorkspaceData } from "@/lib/data";
 import { ensureGuestSession } from "@/lib/guest-session";
+import {
+  canReachExtension,
+  pairExtension,
+  readExtensionIdFromUrl,
+  rememberExtensionId,
+} from "@/lib/extension-pairing";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
+  beforeLoad: ensureGuestSession,
   component: AppShell,
 });
+
+/**
+ * When the extension opens the dashboard it appends `?extensionId=…`. As soon
+ * as the shared workspace is ready we hand the extension this browser's session
+ * so its runs start syncing — no matter which authenticated page it landed on.
+ */
+function useAutoPairExtension() {
+  const { data } = useWorkspaceData();
+  const refresh = useRefreshWorkspace();
+  const attempted = useRef(false);
+  const workspaceId = data?.workspace?.id;
+
+  useEffect(() => {
+    if (attempted.current || !workspaceId) return;
+    const extensionId = readExtensionIdFromUrl();
+    if (!extensionId || !canReachExtension()) return;
+    attempted.current = true;
+    rememberExtensionId(extensionId);
+    pairExtension(extensionId, workspaceId)
+      .then((response) => {
+        toast.success(
+          `Extension connected${
+            response.syncedRuns ? ` · ${response.syncedRuns} runs synced` : ""
+          }`,
+        );
+        return refresh();
+      })
+      .catch((error) => {
+        attempted.current = false;
+        toast.error(error instanceof Error ? error.message : "Could not connect the extension.");
+      });
+  }, [workspaceId, refresh]);
+}
 
 const NAV = [
   { to: "/overview", label: "Overview", icon: LayoutGrid, n: "01" },
@@ -79,6 +120,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
 
 function AppShell() {
   const [open, setOpen] = useState(false);
+  useAutoPairExtension();
   return (
     <div className="flex min-h-screen w-full bg-background">
       <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 border-r border-sidebar-border bg-sidebar lg:block">
