@@ -63,6 +63,7 @@ export function SitesManager({ n }: { n?: string }) {
 
   return (
     <Section {...(n ? { n } : {})} eyebrow="Our sites" title="Websites" bodyClassName="space-y-4">
+      {confirmDialog}
       <form onSubmit={add} className="flex gap-2">
         <input
           className={field}
