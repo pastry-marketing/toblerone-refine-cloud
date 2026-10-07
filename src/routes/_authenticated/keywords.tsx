@@ -13,6 +13,7 @@ import {
   ResultPreview,
   Section,
   StatusBadge,
+  useConfirm,
 } from "@/components/tb/kit";
 import {
   buildKeywordStats,
@@ -35,6 +36,7 @@ function KeywordsPage() {
   const [status, setStatus] = useState("all");
   const query = useWorkspaceData();
   const refresh = useRefreshWorkspace();
+  const [confirm, confirmDialog] = useConfirm();
   const stats = useMemo(
     () =>
       buildKeywordStats(
@@ -93,7 +95,11 @@ function KeywordsPage() {
   }
 
   async function removeKeyword(id: string, keyword: string) {
-    if (!window.confirm(`Remove “${keyword}” and all of its ranking history?`)) return;
+    const ok = await confirm(
+      `Remove “${keyword}”?`,
+      "This removes the keyword and all of its ranking history.",
+    );
+    if (!ok) return;
     const { error } = await supabase.from("keywords").delete().eq("id", id);
     if (error) return void toast.error(error.message);
     await refresh();
@@ -102,6 +108,7 @@ function KeywordsPage() {
 
   return (
     <div className="space-y-7">
+      {confirmDialog}
       <PageHeader eyebrow="Portfolio" title="Tracked keywords">
         <Link
           to="/extension"
