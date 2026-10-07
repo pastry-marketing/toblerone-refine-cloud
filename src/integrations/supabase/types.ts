@@ -383,6 +383,7 @@ export type Database = {
     }
     Functions: {
       is_workspace_member: { Args: { _ws: string }; Returns: boolean }
+      join_workspace: { Args: { invite_code: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

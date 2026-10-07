@@ -142,7 +142,7 @@ export function PositionDetail({ value, className }: { value: number | null; cla
   );
 }
 
-export function ResultPreview({ run, compact = false }: { run?: Run; compact?: boolean }) {
+export function ResultPreview({ run, compact = false }: { run?: Run | undefined; compact?: boolean | undefined }) {
   if (!run?.ranking_url) {
     return <span className="text-xs text-muted-foreground">No ranked page captured</span>;
   }

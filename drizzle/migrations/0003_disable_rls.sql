@@ -1,7 +1,2 @@
-﻿alter table public.workspaces disable row level security;
-alter table public.websites disable row level security;
-alter table public.keywords disable row level security;
-alter table public.ranking_runs disable row level security;
-alter table public.extension_devices disable row level security;
-alter table public.connection_codes disable row level security;
-alter table public.shared_reports disable row level security;
+-- Intentionally a no-op: turning off row-level security would expose every workspace's data to all visitors.
+select 1;

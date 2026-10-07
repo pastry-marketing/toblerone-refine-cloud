@@ -27,7 +27,7 @@ export function buildDemoWorkspaceData() {
     pages_to_check: Math.max(
       3,
       Math.ceil(
-        Math.max(...positions.filter((position): position is number => position != null)) / 10,
+        Math.max(...(positions as readonly (number | null)[]).filter((position): position is number => position != null)) / 10,
       ),
     ),
     market: "US",
