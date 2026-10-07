@@ -34,17 +34,10 @@ export const Route = createFileRoute("/api/config")({
         } catch (e) {
           console.error(e);
         }
-        // The extension's service worker only holds host permission for the
-        // project's canonical *.supabase.co endpoint, so hand it that URL
-        // rather than the dashboard's internal proxy. Tokens and the
-        // publishable key are project-scoped, so they are valid on both.
-        const projectId =
-          process.env["SUPABASE_PROJECT_ID"] ?? import.meta.env["VITE_SUPABASE_PROJECT_ID"];
-        const publicUrl = projectId ? `https://${projectId}.supabase.co` : url;
-        return Response.json(
-          { supabaseUrl: publicUrl, supabaseKey: key, workspaceId },
-          { headers: cors },
-        );
+        // Hand the extension the same Lovable Cloud gateway URL the dashboard
+        // itself uses for auth and REST. The extension's manifest grants host
+        // permission for *.lovable.cloud so its service worker can reach it.
+        return Response.json({ supabaseUrl: url, supabaseKey: key, workspaceId }, { headers: cors });
       },
     },
   },
