@@ -3,7 +3,7 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useRefreshWorkspace, useWorkspaceData } from "@/lib/data";
-import { Section } from "@/components/tb/kit";
+import { Section, useConfirm } from "@/components/tb/kit";
 
 export function normalizeDomain(value: string) {
   const raw = value.trim();
@@ -24,6 +24,7 @@ const field =
 export function SitesManager({ n }: { n?: string }) {
   const query = useWorkspaceData();
   const refresh = useRefreshWorkspace();
+  const [confirm, confirmDialog] = useConfirm();
   const [domain, setDomain] = useState("");
   const [busy, setBusy] = useState(false);
   const ws = query.data?.workspace;
@@ -47,7 +48,13 @@ export function SitesManager({ n }: { n?: string }) {
 
   async function remove(id: string, d: string) {
     const count = keywords.filter((k) => k.website_id === id).length;
-    if (!window.confirm(count ? `Remove ${d} and its ${count} keyword(s) with all ranking history?` : `Remove ${d}?`)) return;
+    const ok = await confirm(
+      `Remove ${d}?`,
+      count
+        ? `This also removes its ${count} keyword${count === 1 ? "" : "s"} and all ranking history.`
+        : "This website has no tracked keywords.",
+    );
+    if (!ok) return;
     const { error } = await supabase.from("websites").delete().eq("id", id);
     if (error) return void toast.error(error.message);
     await refresh();
@@ -56,6 +63,7 @@ export function SitesManager({ n }: { n?: string }) {
 
   return (
     <Section {...(n ? { n } : {})} eyebrow="Our sites" title="Websites" bodyClassName="space-y-4">
+      {confirmDialog}
       <form onSubmit={add} className="flex gap-2">
         <input
           className={field}

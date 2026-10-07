@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Chrome, Copy, Download, RefreshCw, ShieldCheck, Unplug } from "lucide-react";
 import { toast } from "sonner";
-import { ErrorBox, Loading, PageHeader, Section } from "@/components/tb/kit";
+import { ErrorBox, Loading, PageHeader, Section, useConfirm } from "@/components/tb/kit";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtDateTime, useRefreshWorkspace, useWorkspaceData } from "@/lib/data";
 import { disconnectExtension, recallExtensionId } from "@/lib/extension-pairing";
@@ -15,14 +15,19 @@ function ExtensionPage() {
   const dashboardUrl = typeof window !== "undefined" ? window.location.origin : "";
   const query = useWorkspaceData();
   const refresh = useRefreshWorkspace();
+  const [confirm, confirmDialog] = useConfirm();
 
   if (query.isLoading) return <Loading />;
   if (query.error) return <ErrorBox message={query.error.message} />;
 
   const activeDevices = (query.data?.devices ?? []).filter((device) => !device.revoked_at);
-
   async function revoke(id: string) {
-    if (!window.confirm("Disconnect this extension? It will stop syncing until paired again.")) return;
+    const ok = await confirm(
+      "Disconnect this extension?",
+      "It will stop syncing until paired again.",
+      "Disconnect",
+    );
+    if (!ok) return;
     const { error } = await supabase
       .from("extension_devices")
       .update({ revoked_at: new Date().toISOString() })
@@ -39,6 +44,7 @@ function ExtensionPage() {
 
   return (
     <div className="space-y-7">
+      {confirmDialog}
       <PageHeader eyebrow="Chrome bridge" title="Connect your extension">
         <a
           className="inline-flex h-10 items-center gap-2 bg-foreground px-4 text-sm font-bold text-background"
