@@ -3,7 +3,7 @@ returns boolean
 language plpgsql
 security definer
 set search_path = public
-as $body
+as $body$
 declare
   target_ws uuid;
   code_id uuid;
@@ -31,6 +31,6 @@ begin
 
   return true;
 end;
-$body;
+$body$;
 
 grant execute on function public.join_workspace(text) to authenticated;
