@@ -52,7 +52,7 @@ export function PageHeader({
     <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
       <div>
         <div className="eyebrow">{eyebrow}</div>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight md:text-[40px] md:leading-none">
+        <h1 className="mt-2 text-4xl font-serif tracking-tight text-foreground md:text-[50px] md:leading-none">
           {title}
         </h1>
       </div>
@@ -83,7 +83,7 @@ export function Section({
       <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
         <div>
           <div className="eyebrow">{eyebrow}</div>
-          <h2 className="mt-1 text-lg font-extrabold tracking-tight">{title}</h2>
+          <h2 className="mt-1 text-2xl font-serif tracking-tight text-foreground">{title}</h2>
         </div>
         <div className="flex items-center gap-3">
           {action}

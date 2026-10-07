@@ -18,7 +18,6 @@ import { ensureGuestSession } from "@/lib/guest-session";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: ensureGuestSession,
   component: AppShell,
 });
 
