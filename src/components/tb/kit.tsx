@@ -49,14 +49,18 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
-      <div>
+    <div className="border-b-2 border-foreground pb-6">
+      <div className="flex items-center justify-between border-b border-border pb-2">
         <div className="eyebrow">{eyebrow}</div>
-        <h1 className="mt-2 text-4xl font-serif tracking-tight text-foreground md:text-[50px] md:leading-none">
-          {title}
-        </h1>
+        <div className="label-caps">Toblerone · Rank Tracker</div>
       </div>
-      {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
+      <div className="mt-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <h1 className="font-serif text-5xl font-semibold tracking-tight text-foreground md:text-[64px] md:leading-[0.95]">
+          {title}
+          <span className="text-primary">.</span>
+        </h1>
+        {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
+      </div>
     </div>
   );
 }
@@ -79,16 +83,22 @@ export function Section({
   bodyClassName?: string;
 }) {
   return (
-    <section className={cn("border border-border bg-card", className)}>
+    <section className={cn("border border-border border-t-2 border-t-foreground bg-card", className)}>
       <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
-        <div>
-          <div className="eyebrow">{eyebrow}</div>
-          <h2 className="mt-1 text-2xl font-serif tracking-tight text-foreground">{title}</h2>
+        <div className="flex items-start gap-4">
+          {n && (
+            <span className="num border-r border-border pr-4 text-4xl font-semibold leading-none text-primary">
+              {n}
+            </span>
+          )}
+          <div>
+            <div className="eyebrow">{eyebrow}</div>
+            <h2 className="mt-1 font-serif text-2xl font-semibold tracking-tight text-foreground">
+              {title}
+            </h2>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          {action}
-          {n && <span className="num text-2xl text-primary-soft">{n}</span>}
-        </div>
+        {action && <div className="flex items-center gap-3">{action}</div>}
       </header>
       <div className={cn("p-5", bodyClassName)}>{children}</div>
     </section>
@@ -101,13 +111,18 @@ export function StatStrip({
   items: { label: string; value: ReactNode; tone?: "red" | "dark" | undefined }[];
 }) {
   return (
-    <div className="grid grid-cols-2 border-l border-t border-border bg-card sm:grid-cols-3 xl:grid-cols-6">
-      {items.map((it) => (
-        <div key={it.label} className="border-b border-r border-border px-5 py-4">
-          <div className="label-caps">{it.label}</div>
+    <div className="grid grid-cols-2 border-l border-t-2 border-t-foreground border-border bg-card sm:grid-cols-3 xl:grid-cols-6">
+      {items.map((it, i) => (
+        <div key={it.label} className="border-b border-r border-border px-5 py-5">
+          <div className="flex items-baseline justify-between">
+            <div className="label-caps">{it.label}</div>
+            <span className="num text-[11px] text-muted-foreground">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+          </div>
           <div
             className={cn(
-              "num mt-2 text-[40px] leading-none",
+              "num mt-3 text-[48px] font-semibold leading-none",
               it.tone === "red" && "text-primary",
               it.tone === "dark" && "text-destructive",
             )}
