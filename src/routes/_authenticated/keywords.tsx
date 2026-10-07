@@ -13,6 +13,7 @@ import {
   ResultPreview,
   Section,
   StatusBadge,
+  useConfirm,
 } from "@/components/tb/kit";
 import {
   buildKeywordStats,
@@ -35,6 +36,7 @@ function KeywordsPage() {
   const [status, setStatus] = useState("all");
   const query = useWorkspaceData();
   const refresh = useRefreshWorkspace();
+  const [confirm, confirmDialog] = useConfirm();
   const stats = useMemo(
     () =>
       buildKeywordStats(
