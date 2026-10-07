@@ -23,6 +23,7 @@ import {
   useWorkspaceData,
 } from "@/lib/data";
 import { supabase } from "@/integrations/supabase/client";
+import { AddKeywordForm, SitesManager } from "@/components/tb/sites";
 
 export const Route = createFileRoute("/_authenticated/keywords")({
   head: () => ({ meta: [{ title: "Keywords — Toblerone Rank Tracker" }] }),
@@ -110,8 +111,13 @@ function KeywordsPage() {
         </Link>
       </PageHeader>
 
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(300px,.8fr)]">
+        <AddKeywordForm />
+        <SitesManager />
+      </div>
+
       <Section
-        n="01"
+        n="02"
         eyebrow="Keyword portfolio"
         title={`${stats.length} active trackers`}
         bodyClassName="p-0"

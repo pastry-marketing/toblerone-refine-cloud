@@ -45,7 +45,7 @@ function ExtensionPage() {
           href="/downloads/Toblerone-extension.zip"
           download
         >
-          <Download className="h-4 w-4" /> Download extension v2.5
+          <Download className="h-4 w-4" /> Download extension v2.6
         </a>
       </PageHeader>
 

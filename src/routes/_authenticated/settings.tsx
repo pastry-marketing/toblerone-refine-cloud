@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Database, Globe2 } from "lucide-react";
 import { toast } from "sonner";
 import { ErrorBox, Loading, PageHeader, Section } from "@/components/tb/kit";
+import { SitesManager } from "@/components/tb/sites";
 import { downloadFile, toCsv, useWorkspaceData } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -38,6 +39,7 @@ function SettingsPage() {
     <div className="space-y-7">
       <PageHeader eyebrow="Workspace" title="Dashboard settings" />
       <div className="grid gap-6 lg:grid-cols-2">
+        <SitesManager />
         <Section eyebrow="Storage" title="Cloud data">
           <Database className="h-6 w-6 text-primary" />
           <div className="mt-5 grid grid-cols-2 gap-px border border-border bg-border">
