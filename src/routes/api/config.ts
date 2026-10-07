@@ -34,6 +34,9 @@ export const Route = createFileRoute("/api/config")({
         } catch (e) {
           console.error(e);
         }
+        // Hand the extension the same Lovable Cloud gateway URL the dashboard
+        // itself uses for auth and REST. The extension's manifest grants host
+        // permission for *.lovable.cloud so its service worker can reach it.
         return Response.json({ supabaseUrl: url, supabaseKey: key, workspaceId }, { headers: cors });
       },
     },

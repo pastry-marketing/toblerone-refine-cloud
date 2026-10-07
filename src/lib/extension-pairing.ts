@@ -68,17 +68,14 @@ async function sha256(value: string) {
 }
 
 /**
- * The Supabase origin the extension should talk to directly.
+ * The Supabase origin the extension should talk to.
  *
- * The extension's service worker only has host permission for the project's
- * `*.supabase.co` endpoint, so we hand it that canonical URL (derived from the
- * project id) rather than the dashboard's Lovable Cloud proxy. The session
- * tokens and publishable key are project-scoped, so they are valid there.
+ * The database is managed by Lovable Cloud and fronted by its `*.lovable.cloud`
+ * gateway, so we hand the extension the same URL the dashboard uses rather than
+ * a raw `*.supabase.co` endpoint (which the managed project may not expose).
+ * The extension's manifest grants host permission for that gateway.
  */
 export function extensionSupabaseUrl(): string {
-  const projectId =
-    import.meta.env["VITE_SUPABASE_PROJECT_ID"] || process.env["SUPABASE_PROJECT_ID"];
-  if (projectId) return `https://${projectId}.supabase.co`;
   return getSupabasePublicConfig().url;
 }
 
