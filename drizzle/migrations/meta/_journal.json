@@ -43,6 +43,13 @@
       "when": 1791355879813,
       "tag": "0005_global_shared_workspace",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791356276841,
+      "tag": "0006_global_workspace_pick_populated",
+      "breakpoints": true
     }
   ]
 }
