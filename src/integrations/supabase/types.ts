@@ -382,6 +382,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      global_workspace_id: { Args: never; Returns: string }
       is_workspace_member: { Args: { _ws: string }; Returns: boolean }
       join_workspace: { Args: { invite_code: string }; Returns: boolean }
     }

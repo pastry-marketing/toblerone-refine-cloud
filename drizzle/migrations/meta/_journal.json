@@ -36,6 +36,13 @@
       "when": 1791354680061,
       "tag": "0004_ranking_result_details",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791355879813,
+      "tag": "0005_global_shared_workspace",
+      "breakpoints": true
     }
   ]
 }
