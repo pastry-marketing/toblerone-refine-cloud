@@ -29,12 +29,10 @@ export function rankLocation(position: number | null | undefined) {
 
 export async function fetchWorkspaceData() {
   if (import.meta.env["VITE_TOBLERONE_DEMO"] === "true") return buildDemoWorkspaceData();
-  let { data: ws, error: wsErr } = await supabase
-    .from("workspaces")
-    .select("*")
-    .order("created_at")
-    .limit(1)
-    .maybeSingle();
+  const { data: globalId } = await supabase.rpc("global_workspace_id");
+  let { data: ws, error: wsErr } = globalId
+    ? await supabase.from("workspaces").select("*").eq("id", globalId).maybeSingle()
+    : await supabase.from("workspaces").select("*").order("created_at").limit(1).maybeSingle();
   if (wsErr) throw wsErr;
   
   if (!ws) {
