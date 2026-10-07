@@ -1,26 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  CheckCircle2,
-  Chrome,
-  Download,
-  Link2,
-  RefreshCw,
-  ShieldCheck,
-  Unplug,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { Chrome, Copy, Download, RefreshCw, ShieldCheck, Unplug } from "lucide-react";
 import { toast } from "sonner";
 import { ErrorBox, Loading, PageHeader, Section } from "@/components/tb/kit";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtDateTime, useRefreshWorkspace, useWorkspaceData } from "@/lib/data";
-import {
-  canReachExtension,
-  disconnectExtension,
-  pairExtension,
-  readExtensionIdFromUrl,
-  recallExtensionId,
-  rememberExtensionId,
-} from "@/lib/extension-pairing";
+import { disconnectExtension, recallExtensionId } from "@/lib/extension-pairing";
 
 export const Route = createFileRoute("/_authenticated/extension")({
   head: () => ({ meta: [{ title: "Extension — Toblerone Rank Tracker" }] }),
@@ -28,42 +12,14 @@ export const Route = createFileRoute("/_authenticated/extension")({
 });
 
 function ExtensionPage() {
+  const dashboardUrl = typeof window !== "undefined" ? window.location.origin : "";
   const query = useWorkspaceData();
   const refresh = useRefreshWorkspace();
-  const [extensionId, setExtensionId] = useState("");
-  const [connecting, setConnecting] = useState(false);
-  const [connectedNow, setConnectedNow] = useState(false);
-
-  useEffect(() => {
-    setExtensionId(readExtensionIdFromUrl() || recallExtensionId());
-  }, []);
 
   if (query.isLoading) return <Loading />;
   if (query.error) return <ErrorBox message={query.error.message} />;
 
-  const workspace = query.data?.workspace;
   const activeDevices = (query.data?.devices ?? []).filter((device) => !device.revoked_at);
-  const canConnect = Boolean(extensionId.trim()) && canReachExtension();
-
-  async function connect() {
-    const id = extensionId.trim();
-    if (!id) return void toast.error("Open this page from the Toblerone extension first.");
-    if (!workspace) return void toast.error("The dashboard workspace is not ready yet.");
-    setConnecting(true);
-    try {
-      const response = await pairExtension(id, workspace.id);
-      rememberExtensionId(id);
-      setConnectedNow(true);
-      await refresh();
-      toast.success(
-        `Extension connected${response.syncedRuns ? ` · ${response.syncedRuns} runs synced` : ""}`,
-      );
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not connect the extension.");
-    } finally {
-      setConnecting(false);
-    }
-  }
 
   async function revoke(id: string) {
     if (!window.confirm("Disconnect this extension? It will stop syncing until paired again.")) return;
@@ -75,7 +31,7 @@ function ExtensionPage() {
       toast.error(error.message);
       return;
     }
-    const pairedId = extensionId.trim();
+    const pairedId = recallExtensionId();
     if (pairedId) await disconnectExtension(pairedId).catch(() => undefined);
     toast.success("Extension disconnected");
     await refresh();
@@ -120,9 +76,9 @@ function ExtensionPage() {
         >
           <div className="grid gap-px border border-border bg-border sm:grid-cols-3">
             {[
-              ["01", "Open Toblerone", "Open the extension and select Connect dashboard."],
-              ["02", "Pair this browser", "The extension ID fills in automatically below."],
-              ["03", "Run checks", "Every completed run syncs directly to this dashboard."],
+              ["01", "Open Toblerone", "Open the extension's sidebar in Chrome or Edge."],
+              ["02", "Paste URL", "Paste the Dashboard URL below into the extension's Connect form."],
+              ["03", "Run checks", "Existing history syncs now; new runs sync after each check."],
             ].map(([number, title, body]) => (
               <div key={number} className="bg-card p-4">
                 <div className="num text-2xl text-primary">{number}</div>
@@ -133,38 +89,28 @@ function ExtensionPage() {
           </div>
 
           <label className="block">
-            <span className="label-caps">Extension ID</span>
+            <span className="label-caps">Dashboard URL</span>
             <div className="mt-2 flex gap-2">
               <input
-                className="h-11 min-w-0 flex-1 border border-border bg-background px-3 font-mono text-sm outline-none focus:border-primary text-foreground"
-                placeholder="Open this page from the extension"
-                value={extensionId}
-                onChange={(event) => {
-                  setExtensionId(event.target.value.trim());
-                  setConnectedNow(false);
-                }}
+                className="h-11 min-w-0 flex-1 border border-border bg-background px-3 font-mono text-sm outline-none focus:border-primary text-muted-foreground"
+                value={dashboardUrl}
+                readOnly
               />
               <button
-                className="inline-flex h-11 items-center gap-2 bg-primary px-5 text-sm font-extrabold text-primary-foreground disabled:opacity-50"
-                onClick={connect}
-                disabled={!canConnect || connecting}
+                aria-label="Copy Dashboard URL"
+                className="border border-border bg-card px-3 text-foreground hover:border-primary"
+                onClick={() => {
+                  navigator.clipboard.writeText(dashboardUrl);
+                  toast.success("Dashboard URL copied to clipboard");
+                }}
               >
-                {connecting ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : connectedNow ? (
-                  <CheckCircle2 className="h-4 w-4" />
-                ) : (
-                  <Link2 className="h-4 w-4" />
-                )}
-                {connecting ? "Connecting…" : connectedNow ? "Connected" : "Connect"}
+                <Copy className="h-4 w-4" />
               </button>
             </div>
-            {!canReachExtension() ? (
-              <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                Open this dashboard in Chrome or Edge with the Toblerone extension installed, then
-                select <span className="font-bold">Connect dashboard</span> inside the extension.
-              </p>
-            ) : null}
+            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+              Tip: selecting <span className="font-bold">Connect dashboard</span> inside the
+              extension pairs this browser automatically — no copying required.
+            </p>
           </label>
         </Section>
 
