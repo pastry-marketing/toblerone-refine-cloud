@@ -1,4 +1,4 @@
-﻿create or replace function public.join_workspace(invite_code text)
+create or replace function public.join_workspace(invite_code text)
 returns boolean
 language plpgsql
 security definer

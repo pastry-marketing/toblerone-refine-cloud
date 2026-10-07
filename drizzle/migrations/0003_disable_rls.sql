@@ -1,4 +1,4 @@
-﻿alter table public.workspaces disable row level security;
+alter table public.workspaces disable row level security;
 alter table public.websites disable row level security;
 alter table public.keywords disable row level security;
 alter table public.ranking_runs disable row level security;

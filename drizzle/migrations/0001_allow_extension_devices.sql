@@ -1,4 +1,4 @@
-﻿grant insert on public.extension_devices to authenticated;
+grant insert on public.extension_devices to authenticated;
 
 create policy "workspace owner inserts own devices"
 on public.extension_devices
