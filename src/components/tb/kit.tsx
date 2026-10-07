@@ -49,6 +49,61 @@ export function Brand() {
   );
 }
 
+/** Editorial-styled replacement for window.confirm. Returns [ask, dialog]. */
+export function useConfirm(): [
+  (title: string, body: string, actionLabel?: string) => Promise<boolean>,
+  ReactNode,
+] {
+  const [state, setState] = useState<{
+    title: string;
+    body: string;
+    actionLabel: string;
+  } | null>(null);
+  const resolver = useRef<((ok: boolean) => void) | null>(null);
+
+  const ask = useCallback((title: string, body: string, actionLabel = "Remove") => {
+    setState({ title, body, actionLabel });
+    return new Promise<boolean>((resolve) => {
+      resolver.current = resolve;
+    });
+  }, []);
+
+  const settle = (ok: boolean) => {
+    resolver.current?.(ok);
+    resolver.current = null;
+    setState(null);
+  };
+
+  const dialog = (
+    <AlertDialog open={state != null} onOpenChange={(open) => !open && settle(false)}>
+      <AlertDialogContent className="rounded-none border-border bg-card">
+        <AlertDialogHeader>
+          <div className="eyebrow text-primary">Please confirm</div>
+          <AlertDialogTitle className="font-serif text-2xl font-semibold tracking-tight">
+            {state?.title}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-sm text-muted-foreground">
+            {state?.body}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="rounded-none border-border" onClick={() => settle(false)}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            className="rounded-none bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => settle(true)}
+          >
+            {state?.actionLabel}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
+  return [ask, dialog];
+}
+
 export function PageHeader({
   eyebrow,
   title,
