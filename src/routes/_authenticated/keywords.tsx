@@ -83,7 +83,7 @@ function KeywordsPage() {
   async function removeKeyword(id: string, keyword: string) {
     if (!window.confirm(`Remove “${keyword}” and all of its ranking history?`)) return;
     const { error } = await supabase.from("keywords").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     await refresh();
     toast.success("Keyword removed");
   }
