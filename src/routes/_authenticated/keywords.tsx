@@ -108,6 +108,7 @@ function KeywordsPage() {
 
   return (
     <div className="space-y-7">
+      {confirmDialog}
       <PageHeader eyebrow="Portfolio" title="Tracked keywords">
         <Link
           to="/extension"

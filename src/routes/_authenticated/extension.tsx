@@ -40,6 +40,7 @@ function ExtensionPage() {
 
   return (
     <div className="space-y-7">
+      {confirmDialog}
       <PageHeader eyebrow="Chrome bridge" title="Connect your extension">
         <a
           className="inline-flex h-10 items-center gap-2 bg-foreground px-4 text-sm font-bold text-background"
