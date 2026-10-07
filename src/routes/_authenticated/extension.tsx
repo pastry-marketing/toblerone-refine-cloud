@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Chrome, Copy, Download, Link2, ShieldCheck } from "lucide-react";
+import { Chrome, Copy, Download, RefreshCw, ShieldCheck, Unplug } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, Section } from "@/components/tb/kit";
+import { supabase } from "@/integrations/supabase/client";
+import { fmtDateTime, useRefreshWorkspace, useWorkspaceData } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/extension")({
   head: () => ({ meta: [{ title: "Extension — Toblerone Rank Tracker" }] }),
@@ -10,6 +12,23 @@ export const Route = createFileRoute("/_authenticated/extension")({
 
 function ExtensionPage() {
   const dashboardUrl = typeof window !== "undefined" ? window.location.origin : "";
+  const query = useWorkspaceData();
+  const refresh = useRefreshWorkspace();
+  const activeDevices = (query.data?.devices ?? []).filter((device) => !device.revoked_at);
+
+  async function revoke(id: string) {
+    if (!window.confirm("Disconnect this extension? It will stop syncing until paired again.")) return;
+    const { error } = await supabase
+      .from("extension_devices")
+      .update({ revoked_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Extension disconnected");
+    await refresh();
+  }
 
   return (
     <div className="space-y-7">
